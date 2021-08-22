@@ -329,7 +329,27 @@ function Gpio() {
                 return cb(err);
             });
     };
+    
+    this.unexportPin = function (pin, cb) {
+        var pins = [];
+        pins[currentPins[pin + '']] = true;
 
+        var tasks = Object.keys(pins)
+            .map(function(pin) {
+                return function(done) {
+                    removeListener(pin, pollers)
+                    unexportPin(pin, done);
+                }
+            });
+
+         Promise.all(tasks)
+            .then(function() {
+                return cb();
+            })
+            .catch(function(err) {
+                return cb(err);
+            });
+    };
     /**
      * Reset the state of the module
      */
